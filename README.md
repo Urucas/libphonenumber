@@ -97,6 +97,42 @@ PhoneNumberToCarrierMapper carrierMapper = PhoneNumberToCarrierMapper.getInstanc
 System.out.println(carrierMapper.getNameForNumber(swissMobileNumber, Locale.ENGLISH));
 ```
 
+### Quick Android Example using TextWatcher
+```java
+ // inside your activity onCreate
+ phoneNumberEditText.addTextChangedListener(new PhoneNumberTextWatcher());
+
+// add PhoneNumberTextWatcher class
+private class PhoneNumberTextWatcher implements TextWatcher{
+ 
+ @Override
+	public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {	
+			 // TODO: implement your code
+	}
+		
+	@Override
+	public void afterTextChanged(Editable s) {	
+		  // TODO: implement your code
+	}
+		
+	@Override
+	public synchronized void onTextChanged(CharSequence s, int start, int before,
+				int count) {
+	 if(before != count) {
+		 PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+		 String n = s.toString();
+		 try {
+			 PhoneNumber numberProto = phoneUtil.parse(s.toString(), "AR");
+			 n = phoneUtil.format(numberProto, PhoneNumberFormat.NATIONAL);
+			 phoneNumber.setText(n);
+			 phoneNumber.setSelection(n.length());
+		 } catch (Exception e) {}
+	 }
+	}
+	
+}
+```
 
 ---
 
