@@ -100,7 +100,10 @@ System.out.println(carrierMapper.getNameForNumber(swissMobileNumber, Locale.ENGL
 ### Quick Android Example using TextWatcher
 ```java
  // inside your activity onCreate
- phoneNumberEditText.addTextChangedListener(new PhoneNumberTextWatcher());
+private PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+private AsYouTypeFormatter formatter = phoneUtil.getAsYouTypeFormatter("AR");
+// ...
+phoneNumberEditText.addTextChangedListener(new PhoneNumberTextWatcher());		
 
 // add PhoneNumberTextWatcher class
 private class PhoneNumberTextWatcher implements TextWatcher{
@@ -116,19 +119,25 @@ private class PhoneNumberTextWatcher implements TextWatcher{
 		  // TODO: implement your code
 	}
 		
+	private boolean isFormating = false;
 	@Override
 	public synchronized void onTextChanged(CharSequence s, int start, int before,
 				int count) {
-	 if(before != count) {
-		 PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
-		 String n = s.toString();
-		 try {
-			 PhoneNumber numberProto = phoneUtil.parse(s.toString(), "AR");
-			 n = phoneUtil.format(numberProto, PhoneNumberFormat.NATIONAL);
-			 phoneNumber.setText(n);
-			 phoneNumber.setSelection(n.length());
-		 } catch (Exception e) {}
-	 }
+		if(before > count) {
+			return;
+		}
+		if(!isFormatting) {
+			isFormatting = true;
+			try {
+				formatter.clear();
+				for(int i=0; i<s.length();i++) {
+					phoneNumber.setText(formatter.inputDigit(s.charAt(i)));
+					phoneNumber.setSelection(phoneNumber.getText().length());
+				}
+					
+			} catch (Exception e) {}
+			isFormatting = false;
+		}
 	}
 	
 }
